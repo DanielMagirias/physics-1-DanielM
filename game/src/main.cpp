@@ -7,26 +7,52 @@ See documentation here: https://www.raylib.com/, and examples here: https://www.
 #include "raymath.h"
 #define RAYGUI_IMPLEMENTATION
 #include "raygui.h"
+#include "game.h"
 
-const unsigned int TARGET_FPS = 50;
+const unsigned int TARGET_FPS = 50;// frames/second
+float dt = 1.0f / TARGET_FPS; // seconds/frame
 float time = 0;
+float x = 500;
+float y = 500;
+float frequency = 1;
+float amplitude = 100;
+
+
+void update() 
+{
+    dt = 1.0f / TARGET_FPS;
+    time += dt;
+
+    x = x + (-sin(time * frequency)) * frequency * amplitude * dt;
+    y = y + (cos(time * frequency)) * frequency * amplitude * dt;
+}
+
+void draw() 
+{
+        BeginDrawing();
+            ClearBackground(WHITE);
+            DrawText("Daniel Magirias 101552396", 10, GetScreenHeight() - 30, 20, BLACK);
+
+
+            GuiSliderBar(Rectangle{ 60, 50, 1000, 50 }, "Time", TextFormat("%.2f", time), &time, 0, 240);
+            DrawText(TextFormat("Time: %.2f", time), GetScreenWidth() / 2 - 75, 10, 30, LIGHTGRAY);
+
+            DrawCircle(x, y, 70, RED);
+            DrawCircle(500 + cos(time * frequency)* amplitude, 500 + sin(time * frequency) * amplitude, 70, GREEN);
+
+
+        EndDrawing();
+}
 int main()
 {
-    InitWindow(1200, 800, "Physics-1");
+    // InitialWidth and InitialHeight are from including "game.h"   
+    InitWindow(InitialWidth, InitialHeight, "GAME2005 Daniel Magirias 101552396");
     SetTargetFPS(TARGET_FPS);
 
     while (!WindowShouldClose())
     {
-        BeginDrawing();
-            ClearBackground(WHITE);
-            DrawText("Hello world!", 10, 10, 20, LIGHTGRAY);
-
-
-            time += 1;
-            GuiSliderBar(Rectangle{ 60, 5, 1000, 10 }, "Time", TextFormat("%.2f", time), &time, 0, 240);
-
-
-        EndDrawing();
+        update();
+        draw();
     }
 
     CloseWindow();
