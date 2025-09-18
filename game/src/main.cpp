@@ -16,7 +16,7 @@ float time = 0;
 //Lab 1 stuff
 float speed = 100;
 float angle = 0;
-
+Vector2 launchPos{ 100, 700 };
 
 
 //Lab 2 stuff
@@ -38,7 +38,7 @@ void update()
 
     if (IsKeyPressed(KEY_SPACE)) {
 
-        position = { 100, (float)GetScreenHeight() - 100 };
+        position = launchPos;
         velocity = { speed * (float)cos(angle * DEG2RAD), -speed * (float)sin(angle * DEG2RAD) };
     }
     
@@ -57,12 +57,10 @@ void draw()
             GuiSliderBar(Rectangle{ 55, 60, 800, 25 }, "Angle", TextFormat("Angle: %.0f Degrees", angle), &angle, -180, 180); // Lab 1
 
 
-
-            Vector2 startPos = { 100, GetScreenHeight() - 100 };
             Vector2 velocity = { speed * cos(angle * DEG2RAD), -speed * sin(angle * DEG2RAD) }; // DEG2RAD is PI / 180.0
-            GuiSliderBar(Rectangle{ 55, 200, 800, 25 }, "Launch X", TextFormat("Launch Position X: %.0f units", startPos.x), &startPos.x, GetScreenWidth() - (GetScreenWidth() - 1), GetScreenWidth() - 1);
-            GuiSliderBar(Rectangle{ 55, 250, 800, 25 }, "Launch Y", TextFormat("Launch Position Y: %.0f units", startPos.y), &startPos.y, GetScreenHeight() - (GetScreenHeight() - 1), GetScreenHeight() - 1);
-            DrawLineEx(startPos, startPos + velocity, 3, RED);
+            GuiSliderBar(Rectangle{ 55, 120, 800, 25 }, "Launch X", TextFormat("Launch Position X: %.0f units", launchPos.x), &launchPos.x, GetScreenWidth() - (GetScreenWidth() - 1), GetScreenWidth() - 1);
+            GuiSliderBar(Rectangle{ 55, 150, 800, 25 }, "Launch Y", TextFormat("Launch Position Y: %.0f units", launchPos.y), &launchPos.y, GetScreenHeight() - (GetScreenHeight() - 1), GetScreenHeight() - 1);
+            DrawLineEx(launchPos, launchPos + velocity, 3, RED);
 
 
 
