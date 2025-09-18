@@ -13,22 +13,35 @@ const unsigned int TARGET_FPS = 50;// frames/second
 float dt = 1.0f / TARGET_FPS; // seconds/frame
 float time = 0;
 
+//Lab 1 stuff
 float speed = 100;
 float angle = 0;
 
-//float x = 500;
-//float y = 500;
-//float frequency = 1;
-//float amplitude = 100; All Variables for the circles
 
+
+//Lab 2 stuff
+Vector2 position = { 500, 500 };
+Vector2 velocity = { 0, 0 };
+Vector2 accelerationGravity = { 0, 98 }; // change Y value for more gravity
 
 void update() 
 {
     dt = 1.0f / TARGET_FPS;
     time += dt;
 
-    //x = x + (-sin(time * frequency)) * frequency * amplitude * dt;
-    //y = y + (cos(time * frequency)) * frequency * amplitude * dt;
+    //Velocity = change in position / time, therefore change in position = velocity * time
+    position += velocity * dt;
+
+    // acceleration = deltaV / time (change in velocity over time) therefore delvaV = acceleration * time
+    velocity = velocity + accelerationGravity * dt;
+
+
+    if (IsKeyPressed(KEY_SPACE)) {
+
+        position = { 100, (float)GetScreenHeight() - 100 };
+        velocity = { speed * (float)cos(angle * DEG2RAD), -speed * (float)sin(angle * DEG2RAD) };
+    }
+    
 }
 
 void draw() 
@@ -37,27 +50,31 @@ void draw()
 
             ClearBackground(WHITE);
 
-            GuiSliderBar(Rectangle{ 60, 50, 1000, 50 }, "Time", TextFormat("%.2f", time), &time, 0, 240);
-            GuiSliderBar(Rectangle{ 60, 150, 1000, 50 }, "Speed", TextFormat("Speed: %.0f", speed), &speed, -1000, 1000);
-            GuiSliderBar(Rectangle{ 60, 250, 1000, 50 }, "Angle", TextFormat("Angle: %.0f Degrees", angle), &angle, -180, 180);
-            DrawText(TextFormat("Time: %.2f", time), GetScreenWidth() / 2 - 75, 10, 30, LIGHTGRAY);
 
-            //DrawCircle(x, y, 70, RED);
-            //DrawCircle(500 + cos(time * frequency)* amplitude, 500 + sin(time * frequency) * amplitude, 70, GREEN); For the Moving Circles
+            GuiSliderBar(Rectangle{ 55, 0, 800, 25 }, "Time", TextFormat("%.2f", time), &time, 0, 240);
+            //DrawText(TextFormat("Time: %.2f", time), GetScreenWidth() / 2 - 75, 10, 30, LIGHTGRAY); //Time text above the slider bar
+            GuiSliderBar(Rectangle{ 55, 30, 800, 25 }, "Speed", TextFormat("Speed: %.0f", speed), &speed, -1000, 1000); // Lab 1
+            GuiSliderBar(Rectangle{ 55, 60, 800, 25 }, "Angle", TextFormat("Angle: %.0f Degrees", angle), &angle, -180, 180); // Lab 1
 
-
-            DrawRectangle(0, 700, 1200, 100, GREEN); // Ground (Rectangle version)
 
 
             Vector2 startPos = { 100, GetScreenHeight() - 100 };
-            Vector2 velocity = { speed * cos(angle* DEG2RAD), speed * sin(angle * DEG2RAD) }; // DEG2RAD is PI / 180.0
+            Vector2 velocity = { speed * cos(angle * DEG2RAD), -speed * sin(angle * DEG2RAD) }; // DEG2RAD is PI / 180.0
+            GuiSliderBar(Rectangle{ 55, 200, 800, 25 }, "Launch X", TextFormat("Launch Position X: %.0f units", startPos.x), &startPos.x, GetScreenWidth() - (GetScreenWidth() - 1), GetScreenWidth() - 1);
+            GuiSliderBar(Rectangle{ 55, 250, 800, 25 }, "Launch Y", TextFormat("Launch Position Y: %.0f units", startPos.y), &startPos.y, GetScreenHeight() - (GetScreenHeight() - 1), GetScreenHeight() - 1);
             DrawLineEx(startPos, startPos + velocity, 3, RED);
+
+
+
+            GuiSliderBar(Rectangle{ 55, 90, 800, 25 }, "Gravity Y", TextFormat("Gravity Y: %.0f Px/sec^2", accelerationGravity.y), &accelerationGravity.y, -180, 180); // Lab 2
+            DrawCircle(position.x, position.y, 15, RED);
 
 
             DrawText("Daniel Magirias 101552396", 10, GetScreenHeight() - 30, 20, BLACK);
 
         EndDrawing();
 }
+
 int main()
 {
     // InitialWidth and InitialHeight are from including "game.h"   
