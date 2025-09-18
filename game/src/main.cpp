@@ -13,10 +13,10 @@ const unsigned int TARGET_FPS = 50;// frames/second
 float dt = 1.0f / TARGET_FPS; // seconds/frame
 float time = 0;
 
-float x = 500;
-float y = 500;
-float frequency = 1;
-float amplitude = 100;
+//float x = 500;
+//float y = 500;
+//float frequency = 1;
+//float amplitude = 100; All Variables for the circles
 
 
 void update() 
