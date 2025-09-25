@@ -57,15 +57,23 @@ public:
 };
 
 
+
+
 //Lab 1 stuff
 float speed = 100;
 float angle = 0;
-Vector2 launchPos{ 100, 700 };
+Vector2 launchPos{ 100, 700 }; // for the gui slider that controls x and y positions for launch position.
 
 
 //Lab 2 stuff
-//PhysicsObject obj;
 PhysicsWorld world;
+
+void clearWorld() {
+
+    for (int i = world.objects.size() - 1; i >= 0; i--) {
+        world.objects.erase(world.objects.begin() + i);
+    }
+}
 
 
 void update() 
@@ -86,13 +94,9 @@ void update()
         world.add(newBird); //add bird to simulation
     }
 
-    //if (IsKeyPressed(KEY_C)) {
-    //    for each(PhysicsObject newBird in world.objects)
-    //    {
-    //        world.objects.erase (world.objects.begin() + world.objects.count());
-    //    }
-    //}
-    
+    if (IsKeyPressed(KEY_C)) {
+        clearWorld();
+    }
 }
 
 void draw() 
@@ -114,12 +118,12 @@ void draw()
             DrawLineEx(launchPos, launchPos + velocity, 3, RED);
 
 
-
             GuiSliderBar(Rectangle{ 55, 90, 800, 25 }, "Gravity Y", TextFormat("Gravity Y: %.0f Px/sec^2", world.accelerationGravity.y), &world.accelerationGravity.y, -180, 180); // Lab 2
-
             for (int i = 0; i < world.objects.size(); i++) {
                 world.objects[i].draw();
             }
+            DrawText(TextFormat("Active Obj: %d", world.objects.size()), 900, 500, 15, BLACK);
+
 
 
             DrawText("Daniel Magirias 101552396", 10, GetScreenHeight() - 30, 20, BLACK);
