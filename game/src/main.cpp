@@ -8,10 +8,54 @@ See documentation here: https://www.raylib.com/, and examples here: https://www.
 #define RAYGUI_IMPLEMENTATION
 #include "raygui.h"
 #include "game.h"
+#include <string>
+#include <vector>
 
 const unsigned int TARGET_FPS = 50;// frames/second
 float dt = 1.0f / TARGET_FPS; // seconds/frame
 float time = 0;
+
+
+class PhysicsObject {
+
+public:
+    Vector2 position = { 500, 500 };
+    Vector2 velocity = { 0, 0 };
+    float mass = 1; // in kg
+    float radius = 15; // circle radius in pixels
+    std::string name = "";
+
+    void draw() {
+        DrawCircle(position.x, position.y, radius, RED);
+        //DrawText(name, position.x, position.y, 15, Color {0, 0, 0, 255});
+    }
+};
+
+
+class PhysicsWorld {
+
+public:
+    Vector2 accelerationGravity = { 0, 98 }; // change Y value for more gravity
+    std::vector<PhysicsObject> objects;
+
+    void add(PhysicsObject newObj) { // add to the simulation
+        objects.push_back(newObj);
+    }
+
+    void update() {
+        for (int i = 0; i < objects.size(); i++) {
+
+            //Velocity = change in position / time, therefore change in position = velocity * time
+            objects[i].position += objects[i].velocity * dt;
+
+            // acceleration = deltaV / time (change in velocity over time) therefore delvaV = acceleration * time
+            objects[i].velocity = objects[i].velocity + accelerationGravity * dt;
+
+        }
+
+    }
+};
+
 
 //Lab 1 stuff
 float speed = 100;
@@ -20,27 +64,34 @@ Vector2 launchPos{ 100, 700 };
 
 
 //Lab 2 stuff
-Vector2 position = { 500, 500 };
-Vector2 velocity = { 0, 0 };
-Vector2 accelerationGravity = { 0, 98 }; // change Y value for more gravity
+//PhysicsObject obj;
+PhysicsWorld world;
+
 
 void update() 
 {
     dt = 1.0f / TARGET_FPS;
     time += dt;
 
-    //Velocity = change in position / time, therefore change in position = velocity * time
-    position += velocity * dt;
-
-    // acceleration = deltaV / time (change in velocity over time) therefore delvaV = acceleration * time
-    velocity = velocity + accelerationGravity * dt;
+    world.update();
 
 
     if (IsKeyPressed(KEY_SPACE)) {
 
-        position = launchPos;
-        velocity = { speed * (float)cos(angle * DEG2RAD), -speed * (float)sin(angle * DEG2RAD) };
+        PhysicsObject newBird;
+        newBird.position = launchPos;
+        newBird.velocity = { speed * (float)cos(angle * DEG2RAD), -speed * (float)sin(angle * DEG2RAD) };
+        //newBird.radius = (rand() % 26) + 5; random circle size
+
+        world.add(newBird); //add bird to simulation
     }
+
+    //if (IsKeyPressed(KEY_C)) {
+    //    for each(PhysicsObject newBird in world.objects)
+    //    {
+    //        world.objects.erase (world.objects.begin() + world.objects.count());
+    //    }
+    //}
     
 }
 
@@ -64,14 +115,22 @@ void draw()
 
 
 
-            GuiSliderBar(Rectangle{ 55, 90, 800, 25 }, "Gravity Y", TextFormat("Gravity Y: %.0f Px/sec^2", accelerationGravity.y), &accelerationGravity.y, -180, 180); // Lab 2
-            DrawCircle(position.x, position.y, 15, RED);
+            GuiSliderBar(Rectangle{ 55, 90, 800, 25 }, "Gravity Y", TextFormat("Gravity Y: %.0f Px/sec^2", world.accelerationGravity.y), &world.accelerationGravity.y, -180, 180); // Lab 2
+
+            for (int i = 0; i < world.objects.size(); i++) {
+                world.objects[i].draw();
+            }
 
 
             DrawText("Daniel Magirias 101552396", 10, GetScreenHeight() - 30, 20, BLACK);
 
         EndDrawing();
 }
+
+
+
+
+
 
 int main()
 {
