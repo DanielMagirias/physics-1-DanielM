@@ -122,7 +122,7 @@ void draw()
             for (int i = 0; i < world.objects.size(); i++) {
                 world.objects[i].draw();
             }
-            DrawText(TextFormat("Active Obj: %d", world.objects.size()), 900, 500, 15, BLACK);
+            DrawText(TextFormat("Active Obj: %d", world.objects.size()), 1080, 10, 15, BLACK);
 
 
 
