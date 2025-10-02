@@ -19,14 +19,43 @@ float time = 0;
 class PhysicsObject {
 
 public:
+
     Vector2 position = { 500, 500 };
     Vector2 velocity = { 0, 0 };
     float mass = 1; // in kg
-    float radius = 15; // circle radius in pixels
-    std::string name = "";
+    //float radius = 15; // circle radius in pixels
+   std::string name = "";
 
-    void draw() {
-        DrawCircle(position.x, position.y, radius, RED);
+    virtual void draw() {
+        DrawCircle(position.x, position.y, 2, GREEN); // draws like a 2 pixel dot
+        //draw name maybe
+    }
+};
+
+class PhysicsBox : public PhysicsObject {
+
+public:
+
+    Vector2 size{ 50, 50 }; // x = width, y = height
+
+
+    void draw() override {
+        DrawRectangle(position.x, position.y, size.x, size.y, BLUE);
+        //draw name
+    }
+
+};
+
+class PhysicsCircle : public PhysicsObject {
+
+public:
+
+    float radius = 15; // circle radius in pixels
+
+
+    void draw() override {
+
+        DrawCircle(position.x, position.y, radius, GREEN);
         //DrawText(name, position.x, position.y, 15, Color {0, 0, 0, 255});
     }
 };
@@ -35,21 +64,24 @@ public:
 class PhysicsWorld {
 
 public:
-    Vector2 accelerationGravity = { 0, 98 }; // change Y value for more gravity
-    std::vector<PhysicsObject> objects;
 
-    void add(PhysicsObject newObj) { // add to the simulation
+    Vector2 accelerationGravity = { 0, 98 }; // change Y value for more gravity
+    std::vector<PhysicsObject*> objects;
+
+    void add(PhysicsObject* newObj) { // add to the simulation
+
         objects.push_back(newObj);
     }
 
     void update() {
+
         for (int i = 0; i < objects.size(); i++) {
 
             //Velocity = change in position / time, therefore change in position = velocity * time
-            objects[i].position += objects[i].velocity * dt;
+            objects[i]->position += objects[i]->velocity * dt;
 
             // acceleration = deltaV / time (change in velocity over time) therefore delvaV = acceleration * time
-            objects[i].velocity = objects[i].velocity + accelerationGravity * dt;
+            objects[i]->velocity = objects[i]->velocity + accelerationGravity * dt;
 
         }
 
@@ -57,9 +89,7 @@ public:
 };
 
 
-
-
-//Lab 1 stuff
+//Lab 1 stuffpoint
 float speed = 100;
 float angle = 0;
 Vector2 launchPos{ 100, 700 }; // for the gui slider that controls x and y positions for launch position.
@@ -67,6 +97,7 @@ Vector2 launchPos{ 100, 700 }; // for the gui slider that controls x and y posit
 
 //Lab 2 stuff
 PhysicsWorld world;
+
 
 void clearWorld() {
 
@@ -86,18 +117,20 @@ void update()
 
     if (IsKeyPressed(KEY_SPACE)) {
 
-        PhysicsObject newBird;
-        newBird.position = launchPos;
-        newBird.velocity = { speed * (float)cos(angle * DEG2RAD), -speed * (float)sin(angle * DEG2RAD) };
+        PhysicsCircle* newBird = new PhysicsCircle();
+        newBird->position = launchPos;
+        newBird->velocity = { speed * (float)cos(angle * DEG2RAD), -speed * (float)sin(angle * DEG2RAD) };
         //newBird.radius = (rand() % 26) + 5; random circle size
 
         world.add(newBird); //add bird to simulation
     }
 
     if (IsKeyPressed(KEY_C)) {
+
         clearWorld();
     }
 }
+
 
 void draw() 
 {
@@ -119,9 +152,11 @@ void draw()
 
 
             GuiSliderBar(Rectangle{ 55, 90, 800, 25 }, "Gravity Y", TextFormat("Gravity Y: %.0f Px/sec^2", world.accelerationGravity.y), &world.accelerationGravity.y, -180, 180); // Lab 2
+
             for (int i = 0; i < world.objects.size(); i++) {
-                world.objects[i].draw();
+                world.objects[i]->draw();
             }
+
             DrawText(TextFormat("Active Obj: %d", world.objects.size()), 1080, 10, 15, BLACK);
 
 
@@ -130,10 +165,6 @@ void draw()
 
         EndDrawing();
 }
-
-
-
-
 
 
 int main()
