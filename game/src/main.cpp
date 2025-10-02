@@ -25,9 +25,10 @@ public:
     float mass = 1; // in kg
     //float radius = 15; // circle radius in pixels
    std::string name = "";
+   Color color = BLUE;
 
     virtual void draw() {
-        DrawCircle(position.x, position.y, 2, GREEN); // draws like a 2 pixel dot
+        DrawCircle(position.x, position.y, 2, color); // draws like a 2 pixel dot
         //draw name maybe
     }
 };
@@ -55,10 +56,26 @@ public:
 
     void draw() override {
 
-        DrawCircle(position.x, position.y, radius, GREEN);
+        DrawCircle(position.x, position.y, radius, color);
         //DrawText(name, position.x, position.y, 15, Color {0, 0, 0, 255});
     }
 };
+
+bool CircleCircleOverlap(PhysicsCircle* circleA, PhysicsCircle* circleB) {
+
+
+    Vector2 Displacement = circleB->position - circleA->position;
+    float distance = Vector2Length(Displacement);
+    float sumOfRadii = circleA->radius + circleB->radius;
+
+    if (sumOfRadii > distance) {
+        return true; // overlapping
+    }
+
+    else {
+        return false; // not overlapping
+    }
+}
 
 
 class PhysicsWorld {
@@ -85,6 +102,45 @@ public:
 
         }
 
+        checkCollisions();
+
+    }
+
+    void checkCollisions() {
+        //assuming all objects in objects are circles
+        for (int i = 0; i < objects.size(); i++) {
+
+            for (int j = 0; j < objects.size(); j++) {
+
+                if (i == j) continue;
+
+                PhysicsObject* objPointerA = objects[i];
+                PhysicsCircle* circlePointer = (PhysicsCircle*)objPointerA;
+
+
+
+                PhysicsObject* objPointerB = objects[j];
+                PhysicsCircle* circlePointerB = (PhysicsCircle*)objPointerB;
+
+
+                if (CircleCircleOverlap(circlePointer, circlePointerB)) {
+
+                    objPointerA->color = RED;
+                    objPointerB->color = RED;
+                }
+
+                else {
+                    objPointerA->color = BLUE;
+                    objPointerB->color = BLUE;
+                }
+
+            }
+
+            
+        }
+
+        //CircleCircleOverlap()
+        
     }
 };
 
@@ -104,6 +160,7 @@ void clearWorld() {
     for (int i = world.objects.size() - 1; i >= 0; i--) {
         world.objects.erase(world.objects.begin() + i);
     }
+
 }
 
 
@@ -123,6 +180,7 @@ void update()
         //newBird.radius = (rand() % 26) + 5; random circle size
 
         world.add(newBird); //add bird to simulation
+        
     }
 
     if (IsKeyPressed(KEY_C)) {
