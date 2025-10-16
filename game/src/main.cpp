@@ -109,7 +109,7 @@ public:
     void draw() override {
 
         DrawCircle(position.x, position.y, 8, color);
-        DrawLineEx(position, position + velocity, 30, color);
+        DrawLineEx(position, position + normal * 30, 1, color);
         
         Vector2 parallelToSurface = Vector2Rotate(normal, PI / 2.0f);
         DrawLineEx(position - parallelToSurface * 4000, position + parallelToSurface * 4000, 1, color);
@@ -141,15 +141,34 @@ bool CircleCircleOverlap(PhysicsCircle* circleA, PhysicsCircle* circleB) {
 
 bool CircleHalfspaceOverlap(PhysicsCircle* circle, PhysicsHalfSpace* halfspace) {
 
+    // get displacement vector FROM the halfspace TO the circle
     Vector2 DisplacementToCircle = circle->position - halfspace->position;
-    float distance = Vector2Length(DisplacementToCircle);
+    // Let D be the DOT PRODUCT of this displacement and the Normal Vector.
+    // if D < 0, Circle is behind it, if D is > 0, circle is in front. If 0 < D < circle.radius, overlapping.
+    //in other words return (D < radius)
+
+    // return (Dot product(displacement, normal) < radius)
+
+
+    float dot = Vector2DotProduct(DisplacementToCircle, halfspace->getNormal());
+    Vector2 projectionDisplacementOntoNormal = halfspace->getNormal() * dot;
+
+    DrawLineEx(circle->position, circle->position - projectionDisplacementOntoNormal, 1, GRAY);
+    Vector2 midpoint = circle->position - projectionDisplacementOntoNormal * 0.5f;
+    DrawText(TextFormat("D: %6.0f", dot), midpoint.x, midpoint.y, 30, GRAY);
+
+
+
+
+
+    /*float distance = Vector2Length(DisplacementToCircle);
 
     DrawLineEx(circle->position,  halfspace->position, 1, GRAY);
 
     Vector2 midpoint = halfspace->position + DisplacementToCircle * 0.5f;
-    DrawText(TextFormat("%.0f", distance), midpoint.x, midpoint.y , 30, GRAY);
+    DrawText(TextFormat("%.0f", distance), midpoint.x, midpoint.y , 30, GRAY);*/
 
-    return true;
+    return true; // return if they are overlapping
 }
 
 
@@ -188,7 +207,7 @@ public:
     }
 
     void checkCollisions() {
-        //assuming all objects in objects are circles
+        
 
         for (int i = 0; i < objects.size(); i++) {
             objects[i]->color = GREEN;
@@ -333,16 +352,16 @@ void draw()
             }
 
 
-            GuiSliderBar(Rectangle{ 80, 180, 400, 30 }, "HalfspaceX", TextFormat("Speed: %.0f", halfspace.position.x), &halfspace.position.x, 0, GetScreenWidth());
-            GuiSliderBar(Rectangle{ 480, 180, 400, 30 }, "HalfspaceY", TextFormat("Speed: %.0f", halfspace.position.y), &halfspace.position.y, 0, GetScreenHeight());
+            GuiSliderBar(Rectangle{ 1100, 0, 400, 25 }, "HalfspaceX", TextFormat("Speed: %.0f", halfspace.position.x), &halfspace.position.x, 0, GetScreenWidth());
+            GuiSliderBar(Rectangle{ 1100, 30, 400, 25 }, "HalfspaceY", TextFormat("Speed: %.0f", halfspace.position.y), &halfspace.position.y, 0, GetScreenHeight());
 
             float halfspaceRotation = halfspace.getRotation();
-            GuiSliderBar(Rectangle{ 880, 180, 200, 30 }, "Halfspace Rotation", TextFormat("%.0f", halfspace.getRotation()), &halfspaceRotation, -360, 360);
+            GuiSliderBar(Rectangle{ 1100, 60, 400, 25 }, "Halfspace Rotation", TextFormat("%.0f", halfspace.getRotation()), &halfspaceRotation, -360, 360);
             halfspace.setRotationDegrees(halfspaceRotation);
 
 
 
-            DrawText(TextFormat("Active Obj: %d", world.objects.size()), 1080, 10, 15, BLACK);
+            DrawText(TextFormat("Active Obj: %d", world.objects.size()), 1580, 10, 15, BLACK);
 
 
 
@@ -357,6 +376,7 @@ int main()
     // InitialWidth and InitialHeight are from including "game.h"   
     InitWindow(InitialWidth, InitialHeight, "GAME2005 Daniel Magirias 101552396");
     SetTargetFPS(TARGET_FPS);
+
     halfspace.position = { 500, 700 };
     halfspace.isStatic = true;
     world.add(&halfspace);
