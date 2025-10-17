@@ -141,35 +141,18 @@ bool CircleCircleOverlap(PhysicsCircle* circleA, PhysicsCircle* circleB) {
 
 bool CircleHalfspaceOverlap(PhysicsCircle* circle, PhysicsHalfSpace* halfspace) {
 
-    // get displacement vector FROM the halfspace TO the circle
-    Vector2 DisplacementToCircle = circle->position - halfspace->position;
-    // Let D be the DOT PRODUCT of this displacement and the Normal Vector.
-    // if D < 0, Circle is behind it, if D is > 0, circle is in front. If 0 < D < circle.radius, overlapping.
-    //in other words return (D < radius)
+    Vector2 displacementToCircle = circle->position - halfspace->position;
 
-    // return (Dot product(displacement, normal) < radius)
+    float distanceAlongNormal = Vector2DotProduct(displacementToCircle, halfspace->getNormal());
 
-
-    float dot = Vector2DotProduct(DisplacementToCircle, halfspace->getNormal());
-    Vector2 projectionDisplacementOntoNormal = halfspace->getNormal() * dot;
-
+    Vector2 projectionDisplacementOntoNormal = halfspace->getNormal() * distanceAlongNormal;
     DrawLineEx(circle->position, circle->position - projectionDisplacementOntoNormal, 1, GRAY);
     Vector2 midpoint = circle->position - projectionDisplacementOntoNormal * 0.5f;
-    DrawText(TextFormat("D: %6.0f", dot), midpoint.x, midpoint.y, 30, GRAY);
+    DrawText(TextFormat("D: %6.0f", distanceAlongNormal), midpoint.x, midpoint.y, 30, GRAY);
 
-
-
-
-
-    /*float distance = Vector2Length(DisplacementToCircle);
-
-    DrawLineEx(circle->position,  halfspace->position, 1, GRAY);
-
-    Vector2 midpoint = halfspace->position + DisplacementToCircle * 0.5f;
-    DrawText(TextFormat("%.0f", distance), midpoint.x, midpoint.y , 30, GRAY);*/
-
-    return true; // return if they are overlapping
+    return distanceAlongNormal < circle->radius;
 }
+
 
 
 class PhysicsWorld {
