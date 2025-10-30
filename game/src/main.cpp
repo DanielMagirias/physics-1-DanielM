@@ -139,6 +139,29 @@ bool CircleCircleOverlap(PhysicsCircle* circleA, PhysicsCircle* circleB) {
     }
 }
 
+bool CircleCircleCollisionResponse(PhysicsCircle* circleA, PhysicsCircle* circleB) {
+
+
+    Vector2 Displacement = circleB->position - circleA->position;
+    float distance = Vector2Length(Displacement);
+    float sumOfRadii = circleA->radius + circleB->radius;
+
+    float overlap = sumOfRadii - distance;
+    Vector2 normalAtoB = Displacement / distance;
+    Vector2 mtv = normalAtoB * overlap; // mtv = minimum translation vector
+
+    if (sumOfRadii > distance) {
+        
+        circleA->position -= mtv * 0.5;
+        circleB->position += mtv * 0.5;
+        return true;
+    }
+
+    else {
+        return false; // not overlapping
+    }
+}
+
 bool CircleHalfspaceOverlap(PhysicsCircle* circle, PhysicsHalfSpace* halfspace) {
 
     Vector2 displacementToCircle = circle->position - halfspace->position;
@@ -216,7 +239,7 @@ public:
                 if (shapeOfA == CIRCLE && shapeOfB == CIRCLE)
                 {
 
-                    didOverlap = CircleCircleOverlap((PhysicsCircle*)objPointerA, (PhysicsCircle*)objPointerB);
+                    didOverlap = CircleCircleCollisionResponse((PhysicsCircle*)objPointerA, (PhysicsCircle*)objPointerB);
 
                     /*if (CircleCircleOverlap((PhysicsCircle*)objPointerA, (PhysicsCircle*)objPointerB)) {
 
