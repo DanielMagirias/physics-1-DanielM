@@ -145,13 +145,12 @@ bool CircleCircleCollisionResponse(PhysicsCircle* circleA, PhysicsCircle* circle
     Vector2 Displacement = circleB->position - circleA->position;
     float distance = Vector2Length(Displacement);
     float sumOfRadii = circleA->radius + circleB->radius;
-
     float overlap = sumOfRadii - distance;
-    Vector2 normalAtoB = Displacement / distance;
-    Vector2 mtv = normalAtoB * overlap; // mtv = minimum translation vector
+    
+    if (overlap > 0) {
+        Vector2 normalAtoB = Displacement / distance;
+        Vector2 mtv = normalAtoB * overlap; // mtv = minimum translation vector
 
-    if (sumOfRadii > distance) {
-        
         circleA->position -= mtv * 0.5;
         circleB->position += mtv * 0.5;
         return true;
@@ -174,6 +173,32 @@ bool CircleHalfspaceOverlap(PhysicsCircle* circle, PhysicsHalfSpace* halfspace) 
     DrawText(TextFormat("D: %6.0f", distanceAlongNormal), midpoint.x, midpoint.y, 30, GRAY);
 
     return distanceAlongNormal < circle->radius;
+}
+
+bool CircleHalfspaceCollisionResponse(PhysicsCircle* circle, PhysicsHalfSpace* halfspace) {
+
+    Vector2 displacementToCircle = circle->position - halfspace->position;
+    float dot = Vector2DotProduct(displacementToCircle, halfspace->getNormal());
+    Vector2 projectionDisplacementOntoNormal = halfspace->getNormal() * dot;
+    float overlap = circle->radius - dot;
+
+    if (overlap > 0) {
+
+        Vector2 mtv = halfspace->getNormal() * overlap;
+        circle->position += mtv;
+
+        return true;
+    }
+
+    else {
+        return false;
+    }
+
+    /*DrawLineEx(circle->position, circle->position - projectionDisplacementOntoNormal, 1, GRAY);
+    Vector2 midpoint = circle->position - projectionDisplacementOntoNormal * 0.5f;
+    DrawText(TextFormat("D: %6.0f", dot), midpoint.x, midpoint.y, 30, GRAY);*/
+
+    
 }
 
 
@@ -238,7 +263,7 @@ public:
 
                 if (shapeOfA == CIRCLE && shapeOfB == CIRCLE)
                 {
-
+                    // change this to CircleCircleOverlap for no collision
                     didOverlap = CircleCircleCollisionResponse((PhysicsCircle*)objPointerA, (PhysicsCircle*)objPointerB);
 
                     /*if (CircleCircleOverlap((PhysicsCircle*)objPointerA, (PhysicsCircle*)objPointerB)) {
@@ -255,13 +280,13 @@ public:
                 }
 
                 else if (shapeOfA == CIRCLE && shapeOfB == HALF_SPACE) {
-
-                   didOverlap = CircleHalfspaceOverlap((PhysicsCircle*)objPointerA, (PhysicsHalfSpace*)objPointerB);
+                    //change this and the one below to CircleHalfspaceOverlap for no collision
+                   didOverlap = CircleHalfspaceCollisionResponse((PhysicsCircle*)objPointerA, (PhysicsHalfSpace*)objPointerB);
                 }
 
                 else if (shapeOfA == HALF_SPACE && shapeOfB == CIRCLE) {
 
-                    didOverlap = CircleHalfspaceOverlap((PhysicsCircle*)objPointerB, (PhysicsHalfSpace*)objPointerA);
+                    didOverlap = CircleHalfspaceCollisionResponse((PhysicsCircle*)objPointerB, (PhysicsHalfSpace*)objPointerA);
                 }
 
                 if (didOverlap) {
@@ -290,6 +315,7 @@ Vector2 launchPos{ 100, 700 }; // for the gui slider that controls x and y posit
 //Lab 2 stuff
 PhysicsWorld world;
 PhysicsHalfSpace halfspace;
+PhysicsHalfSpace halfspace2;
 
 
 void clearWorld() {
@@ -383,9 +409,15 @@ int main()
     InitWindow(InitialWidth, InitialHeight, "GAME2005 Daniel Magirias 101552396");
     SetTargetFPS(TARGET_FPS);
 
-    halfspace.position = { 500, 700 };
+    halfspace.position = { 500, 800 };
+    halfspace.setRotationDegrees(-15);
     halfspace.isStatic = true;
     world.add(&halfspace);
+
+    halfspace2.position = { 500, 900 };
+    halfspace2.setRotationDegrees(15);
+    halfspace2.isStatic = true;
+    world.add(&halfspace2);
 
     while (!WindowShouldClose())
     {
