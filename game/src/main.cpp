@@ -396,6 +396,29 @@ void draw()
             DrawText(TextFormat("Active Obj: %d", world.objects.size()), 1580, 10, 15, BLACK);
 
 
+            //Draw FBD
+            Vector2 location{ 600, 500 };
+            DrawCircleLines(location.x, location.y, 100, BLACK);
+            float mass = 8;
+
+            //Draw Gravity
+            Vector2 Fgravity = world.accelerationGravity * mass;
+            DrawLine(location.x, location.y, location.x + Fgravity.x, location.y + Fgravity.y, PURPLE);
+
+            //Draw Normal Force
+            Vector2 FgPerp = halfspace.getNormal() * Vector2DotProduct(Fgravity, halfspace.getNormal());
+            Vector2 Fnormal = FgPerp * -1;
+            DrawLine(location.x, location.y, location.x + Fnormal.x, location.y + Fnormal.y, GREEN);
+
+            //Draw Gracity
+            Vector2 FgPara = Fgravity - FgPerp;
+            Vector2 Ffriction = FgPara * -1;
+            DrawLine(location.x, location.y, location.x - Ffriction.x, location.y - Ffriction.y, ORANGE);
+
+
+
+
+
 
             DrawText("Daniel Magirias 101552396", 10, GetScreenHeight() - 30, 20, BLACK);
 
@@ -414,10 +437,10 @@ int main()
     halfspace.isStatic = true;
     world.add(&halfspace);
 
-    halfspace2.position = { 500, 900 };
-    halfspace2.setRotationDegrees(15);
-    halfspace2.isStatic = true;
-    world.add(&halfspace2);
+   // halfspace2.position = { 500, 900 };
+   // halfspace2.setRotationDegrees(15);
+   // halfspace2.isStatic = true;
+   //// world.add(&halfspace2);
 
     while (!WindowShouldClose())
     {
